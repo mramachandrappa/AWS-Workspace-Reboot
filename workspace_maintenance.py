@@ -9,7 +9,7 @@ class Workspaces:
     def __init__(self):
         sts_client = boto3.client('sts')
         assumed_role_object = sts_client.assume_role(
-            RoleArn="<ROLE-ARN",
+            RoleArn="<ROLE-ARN>",
             RoleSessionName="AssumeRoleSession1"
         )
 
