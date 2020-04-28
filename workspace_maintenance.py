@@ -5,11 +5,11 @@ import time
 
 
 class Workspaces:
-#====================== Authenticates with Access and Secret Keys ===============================
+#====================== Role based connection to AWS resource ===============================
     def __init__(self):
         sts_client = boto3.client('sts')
         assumed_role_object = sts_client.assume_role(
-            RoleArn="<ROLE-ARN>",
+            RoleArn="<ROLE-ARN>",                       #AWS role arn
             RoleSessionName="AssumeRoleSession1"
         )
 
@@ -123,26 +123,28 @@ class Workspaces:
 
 def main():
     obj = Workspaces()
-    directory_id = "<DIRECTORY_id>" #Pass DirectoryID here
+    directory_id = "<DIRECTORY_id>" #Workspaces DirectoryID
 
     workspaces = obj.get_workspace(directory_id)
 
-    message = "*Athens Workspace Notification:*\n\n" \
-              "```Status      : UNHEALTHY\n" \
-              "WorkspaceID : " + str(workspaces) + "```\n" \
-              "*_Rebooting Workspaces..._*\n"
+    if workspaces:
+        message = "*Athens Workspace Notification:*\n\n" \
+                  "```Status      : UNHEALTHY\n" \
+                  "WorkspaceID : " + str(workspaces) + "```\n" \
+                  "*_Rebooting Workspaces..._*\n"
 
-    sucess_mes = "*Athens Workspace Notification:*\n\n" \
-                 "*Workspaces are Successfully Rebooted!*" \
-                 "```Status      : AVAILABLE\n" \
-                 "WorkspaceID : " + str(workspaces) + "```\n\n"
+        sucess_mes = "*Athens Workspace Notification:*\n\n" \
+                     "*_ Unhealthy Workspaces are Successfully Rebooted!_*" \
+                     "```Status      : AVAILABLE\n" \
+                     "WorkspaceID : " + str(workspaces) + "```\n"
 
-    url = "<Hangout's Chat Room Webhook URL>"
-    obj.athens_bot(message, url)
+        url = "<Webhook URL>"           # Hangout's Chat room webhook URL
+        obj.athens_bot(message, url)
 
-    if obj.reboot_workspace(workspaces) is True:
-        obj.athens_bot(sucess_mes, url)
-
+        if obj.reboot_workspace(workspaces) is True:
+            obj.athens_bot(sucess_mes, url)
+    else:
+        print("No UNHEALTHY Workspaces found!")
 
 if __name__ == "__main__":
     main()
